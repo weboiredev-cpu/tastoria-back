@@ -1,28 +1,76 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
+  import express from 'express';
+  import http from 'http';
+  import mongoose from 'mongoose';
+  import { Server } from 'socket.io';
+  import cors from 'cors';
+  import helmet from 'helmet';
+  import dotenv from 'dotenv';
+  import rateLimit from 'express-rate-limit';
+  import menuRoutes from './routes/menuRoutes.js';
+  import userRoutes from './routes/userRoutes.js';
+  import orderRoutes from './routes/orderRoutes.js';
+  import adminRoutes from './routes/adminRoutes.js';
+  import { trackVisitor } from './middleware/visit.js';
+  import path from 'path';
+  import { fileURLToPath } from 'url';
+  import whatsappRoutes from './routes/whatapproutes.js';
+  import redis from './utils/redis.js';
+  dotenv.config();
 
-import userRoutes from './routes/userRoutes.js';
-import orderRoutes from './routes/orderRoutes.js';
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
 
+  // ✅ Initialize Express before using it in HTTP server
+  const app = express();
 
-dotenv.config();
-const app = express();
+  // ✅ Create HTTP server after app is defined
+  const server = http.createServer(app);
 
-app.use(cors());
-app.use(express.json());
+  // ✅ Setup Socket.IO
+  const io = new Server(server, {
+    cors: {
+      origin: '*', // Replace with frontend domain in production
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    },
+  });
 
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error(err));
+  // ✅ Share Socket.IO instance across routes
+  app.set('io', io);
 
-app.use('/api/users', userRoutes);
-app.use('/api/orders', orderRoutes);
+  // ✅ Socket events
+  io.on('connection', (socket) => {
+    console.log('New client connected:', socket.id);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    socket.on('disconnect', () => {
+      console.log('Client disconnected:', socket.id);
+    });
+  });
+
+  // ✅ Middlewares
+  const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+  app.use(cors());
+  app.use(express.json());
+  app.use(helmet());
+  app.use(limiter);
+  app.use(trackVisitor);
+  app.use('/whatsapp', whatsappRoutes);
+
+  // ✅ MongoDB connection
+  mongoose
+    .connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => console.log('MongoDB connected'))
+    .catch((err) => console.error('MongoDB error:', err));
+
+  // ✅ Routes
+  app.use('/api/users', userRoutes);
+  app.use('/api/orders', orderRoutes);
+  app.use('/api/menu', menuRoutes);
+  app.use('/api/admin', adminRoutes);
+  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+  // ✅ Start server
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

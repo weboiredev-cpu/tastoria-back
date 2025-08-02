@@ -7,12 +7,17 @@ const orderSchema = new mongoose.Schema({
   },
   customerName: {
     type: String,
-    required: true,
+    required: false,
   },
   phoneNumber: {                            // ✅ Ensure phone number is required
     type: String,
-    required: true,
+    required: false,
   },
+  userEmail: {
+    type: String,
+    required: false
+  },
+  
   items: [
     {
       name: {
@@ -27,8 +32,21 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+      
+      
     },
   ],
+
+  status: {
+    type: String,
+    enum: ['pending', 'completed', 'cancelled'],
+    default: 'pending',
+  },
+  source: {
+    type: String,
+    enum: ['website', 'whatsapp'],
+    default: 'website'
+  },
   total: {
     type: Number,
     required: true,
@@ -37,7 +55,7 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+},{timestamps:true});
 
 // Avoid model overwrite error in development
 export default mongoose.models.Order || mongoose.model('Order', orderSchema);
