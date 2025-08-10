@@ -1,10 +1,12 @@
+  import dotenv from 'dotenv';
+dotenv.config();
   import express from 'express';
   import http from 'http';
   import mongoose from 'mongoose';
   import { Server } from 'socket.io';
   import cors from 'cors';
   import helmet from 'helmet';
-  import dotenv from 'dotenv';
+
   import rateLimit from 'express-rate-limit';
   import menuRoutes from './routes/menuRoutes.js';
   import userRoutes from './routes/userRoutes.js';
@@ -15,7 +17,6 @@
   import { fileURLToPath } from 'url';
   import whatsappRoutes from './routes/whatapproutes.js';
   import redis from './utils/redis.js';
-  dotenv.config();
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);

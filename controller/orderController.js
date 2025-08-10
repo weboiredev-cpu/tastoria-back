@@ -1,5 +1,33 @@
 import Order from '../models/order.js';
 
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    // Validate status values as per your allowed enum
+    const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.json({ success: true, order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update order status', error: error.message });
+  }
+};
+
+
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);

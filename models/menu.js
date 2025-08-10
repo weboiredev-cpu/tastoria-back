@@ -12,9 +12,8 @@ const menuItemSchema = new mongoose.Schema({
   category: {
     type: String, // e.g., "Drinks", "Main Course"
   },
-  image: {
-    data: Buffer,
-    contentType: String,
+  imageUrl: {
+   type :String,
   },
   paused: {
     type: Boolean,
