@@ -3,7 +3,7 @@
   import User from '../models/User.js';
   import Visitor from '../models/visitor.js';
   import { send } from '../utils/send.js';
-
+  import { verifyAdmin } from '../middleware/adminMiddle.js';
   const router = express.Router();
 
   router.get('/stats', async (req, res) => {
@@ -35,7 +35,7 @@
   }
 );
 
-router.patch('/orders/:id/confirm', async (req, res) => {
+router.patch('/orders/:id/confirm', verifyAdmin, async (req, res) => { // ✅ protected route
   try {
     const order = await Order.findByIdAndUpdate(
       req.params.id,

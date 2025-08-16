@@ -1,6 +1,6 @@
 import express from 'express';
 import Order from '../models/order.js';
-import { updateOrderStatus, getOrderById, getOrderByTableId ,getRecentOrders,getAllOrders } from '../controller/orderController.js';
+import { updateOrderStatus, getOrderById, getOrderByTableId ,getRecentOrders,getAllOrders,getPopularItems } from '../controller/orderController.js';
 import { sendOrderConfirmation, sendOrderCancellation } from '../utils/mailer.js';
 import { send } from '../utils/send.js'; // ✅ Import WhatsApp utility
 
@@ -70,6 +70,7 @@ router.get('/user/:email', async (req, res) => {
 router.get('/table/:tableId', getOrderByTableId);
 router.get('/recent', getRecentOrders); 
 router.get('/all', getAllOrders);
+router.get("/most-sold",getPopularItems);
 router.get('/:id', getOrderById);
 router.patch('/orders/:id/status', updateOrderStatus);
 // ✅ Update order status

@@ -6,7 +6,7 @@ dotenv.config();
   import { Server } from 'socket.io';
   import cors from 'cors';
   import helmet from 'helmet';
-
+  import adminLoginRoutes from "./routes/adminLogin.js";
   import rateLimit from 'express-rate-limit';
   import menuRoutes from './routes/menuRoutes.js';
   import userRoutes from './routes/userRoutes.js';
@@ -17,7 +17,6 @@ dotenv.config();
   import { fileURLToPath } from 'url';
   import whatsappRoutes from './routes/whatapproutes.js';
   import redis from './utils/redis.js';
-
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
@@ -49,13 +48,18 @@ dotenv.config();
 
   // ✅ Middlewares
   const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
-  app.use(cors());
+  app.use(cors({
+  origin: 'http://localhost:3000', // your Next.js frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
+
   app.use(express.json());
   app.use(helmet());
   app.use(limiter);
   app.use(trackVisitor);
   app.use('/whatsapp', whatsappRoutes);
-
+  app.use("/api/admin", adminLoginRoutes);
   // ✅ MongoDB connection
   mongoose
     .connect(process.env.MONGODB_URI, {

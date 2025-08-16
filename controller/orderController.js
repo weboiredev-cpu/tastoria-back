@@ -1,4 +1,5 @@
 import Order from '../models/order.js';
+import Menu from '../models/menu.js'; 
 
 export const updateOrderStatus = async (req, res) => {
   try {
@@ -74,5 +75,54 @@ export const getOrderByTableId = async (req, res) => {
     res.json(order);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+export const getPopularItems = async (req, res) => {
+  try {
+    const popularItems = await Order.aggregate([
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.name", // group by item name
+          totalSold: { $sum: "$items.quantity" },
+          totalRevenue: {
+            $sum: {
+              $multiply: [
+                "$items.quantity",
+                { $toDouble: "$items.price" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        // Join with Menu to get Cloudinary image
+        $lookup: {
+          from: "menus",           // <-- collection name in MongoDB (lowercase plural of model)
+          localField: "_id",       // item name from orders
+          foreignField: "name",    // field in Menu model
+          as: "menuInfo"
+        }
+      },
+      { $unwind: { path: "$menuInfo", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          name: "$_id",
+          orders: "$totalSold",
+          revenue: "$totalRevenue",
+          image: "$menuInfo.imageUrl" // <-- Cloudinary URL from menu
+        }
+      },
+      { $sort: { orders: -1 } },
+      { $limit: 10 }
+    ]);
+
+    res.json(popularItems);
+  } catch (error) {
+    console.error("Popular items error details:", error);
+    res.status(500).json({
+      error: "Server error fetching popular items",
+      details: error.message
+    });
   }
 };
