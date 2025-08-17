@@ -25,7 +25,7 @@ router.post('/auth', async (req, res) => {
 });
 
 // Update phone before order confirmation
-router.put('/phone', async (req, res) => {
+router.post('/phone', async (req, res) => {
   const { email, phone } = req.body;
 
   try {
