@@ -27,8 +27,8 @@ const server = http.createServer(app);
 
 // ✅ Dynamically set the allowed origin from environment variables
 //const frontendURL = process.env.FRONTEND_URL || 'http://localhost:3000' || 'https://tastoria-front.vercel.app';
-const frontendURL = 'https://tastoria-front.vercel.app';
-
+//const frontendURL = 'https://tastoria-front.vercel.app';
+const frontendURL = 'https://www.tastoria.in';
 // ✅ Setup Socket.IO with the secure CORS origin
 const io = new Server(server, {
   cors: {
