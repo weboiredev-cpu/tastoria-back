@@ -29,13 +29,11 @@ router.post('/phone', async (req, res) => {
   const { email, phone } = req.body;
 
   try {
-    const user = await User.findOneAndUpdate(
-      { email },
-      { phone },
-      { new: true }
-    );
-
+    let user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: 'User not found' });
+
+    user.phone = phone;
+    await user.save();
 
     res.status(200).json({ success: true, user });
   } catch (error) {
@@ -43,6 +41,21 @@ router.post('/phone', async (req, res) => {
   }
 });
 
+// Get user by email (used in NextAuth callbacks)
+router.get('/check', async (req, res) => {
+  const { email } = req.query;
 
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 export default router;
