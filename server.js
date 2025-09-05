@@ -25,11 +25,11 @@ dotenv.config();
 
   // ✅ Create HTTP server after app is defined
   const server = http.createServer(app);
-
+  const frontendURL = 'https://www.tastoria.in' || 'https://tastoria-front.vercel.app' || 'https://tastoria.in' || 'https://tastoria-back.onrender.com' || 'http://localhost:3000' ;
   // ✅ Setup Socket.IO
   const io = new Server(server, {
     cors: {
-      origin: 'http://localhost:3000', // Replace with frontend domain in production
+      origin:  frontendURL, // Replace with frontend domain in production
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
     },
   });
@@ -49,7 +49,7 @@ dotenv.config();
   // ✅ Middlewares
   const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
   app.use(cors({
-  origin: 'http://localhost:3000', // your Next.js frontend
+  origin:  frontendURL, // your Next.js frontend
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));

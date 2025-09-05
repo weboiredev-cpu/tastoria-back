@@ -16,16 +16,17 @@ const Order = require('./models/Order'); // Import the Order model
 
 const app = express();
 const server = http.createServer(app);
-
+const frontendURL = 'https://www.tastoria.in' || 'https://tastoria-front.vercel.app' || 'https://tastoria.in' || 'https://tastoria-back.onrender.com' || 'http://localhost:3000' ;
 // --- Middleware Setup ---
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(express.json()); // To parse JSON request bodies
 
 // --- Socket.IO Setup ---
 // This allows for real-time communication between the server and clients.
+
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Allow connections from any origin
+    origin:  frontendURL, // Allow connections from any origin
     methods: ["GET", "POST", "PUT"]
   }
 });
