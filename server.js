@@ -26,7 +26,7 @@ const app = express(); // ✅ Define app first
 const server = http.createServer(app);
 
 // ✅ Frontend URL for CORS
-const frontendURL = 'https://www.tastoria.in';
+const frontendURL = ["http://localhost:3000", "https://www.tastoria.in"];
 
 // ✅ Socket.IO
 const io = new Server(server, {
