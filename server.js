@@ -29,7 +29,7 @@ dotenv.config();
   // ✅ Setup Socket.IO
   const io = new Server(server, {
     cors: {
-      origin: '*', // Replace with frontend domain in production
+      origin: 'http://localhost:3000', // Replace with frontend domain in production
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
     },
   });
