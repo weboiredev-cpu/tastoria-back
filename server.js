@@ -54,7 +54,35 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"], 
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'self'"], 
+      },
+    },
+    referrerPolicy: { policy: "no-referrer-when-downgrade" },
+    frameguard: { action: "sameorigin" },
+    hsts: { maxAge: 63072000, includeSubDomains: true, preload: true },
+    noSniff: true,
+    crossOriginEmbedderPolicy: true,
+    crossOriginOpenerPolicy: true,
+    crossOriginResourcePolicy: { policy: "same-site" },
+  })
+);
+app.use((req, res, next) => {
+  res.setHeader(
+    "Permissions-Policy",
+    "geolocation=(), microphone=(), camera=()" 
+  );
+  next();
+});
 app.use(limiter);
 app.use(trackVisitor);
 
