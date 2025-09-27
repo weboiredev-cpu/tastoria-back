@@ -25,11 +25,11 @@ const __dirname = path.dirname(__filename);
 const app = express(); // ✅ Define app first
 const server = http.createServer(app);
 
-// ✅ Dynamically set the allowed origin from environment variables
-//const frontendURL = process.env.FRONTEND_URL || 'http://localhost:3000' || 'https://tastoria-front.vercel.app';
-//const frontendURL = 'https://tastoria-front.vercel.app';
-const frontendURL = 'https://www.tastoria.in' || 'https://tastoria-front.vercel.app' || 'https://tastoria.in' || 'https://tastoria-back.onrender.com' || 'http://localhost:3000' ;
-// ✅ Setup Socket.IO with the secure CORS origin
+
+// ✅ Frontend URL for CORS
+const frontendURL = ["http://localhost:3000", "https://www.tastoria.in"];
+
+
 const io = new Server(server, {
   cors: {
     origin: frontendURL,
