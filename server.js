@@ -22,15 +22,13 @@ import redis from './utils/redis.js';
 // --- SETUP ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const app = express();
+const app = express(); // ✅ Define app first
 const server = http.createServer(app);
 
 // ✅ Dynamically set the allowed origin from environment variables
 //const frontendURL = process.env.FRONTEND_URL || 'http://localhost:3000' || 'https://tastoria-front.vercel.app';
 //const frontendURL = 'https://tastoria-front.vercel.app';
-//const frontendURL = 'https://www.tastoria.in' || 'https://tastoria-front.vercel.app' || 'https://tastoria.in' || 'https://tastoria-back.onrender.com' || 'http://localhost:3000' ;
-// ✅ Setup Socket.IO with the secure CORS origin
-const frontendURL = 'http://localhost:3000' ;
+const frontendURL = 'https://www.tastoria.in' || 'https://tastoria-front.vercel.app' || 'https://tastoria.in' || 'https://tastoria-back.onrender.com' || 'http://localhost:3000' ;
 // ✅ Setup Socket.IO with the secure CORS origin
 const io = new Server(server, {
   cors: {
@@ -49,17 +47,43 @@ io.on('connection', (socket) => {
 });
 
 // --- MIDDLEWARES ---
-const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }); // ✅ Only declare once
 
-// ✅ Use the secure CORS origin for your main Express app
 app.use(cors({
   origin: frontendURL,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
-
 app.use(express.json());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"], 
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'self'"], 
+      },
+    },
+    referrerPolicy: { policy: "no-referrer-when-downgrade" },
+    frameguard: { action: "sameorigin" },
+    hsts: { maxAge: 63072000, includeSubDomains: true, preload: true },
+    noSniff: true,
+    crossOriginEmbedderPolicy: true,
+    crossOriginOpenerPolicy: true,
+    crossOriginResourcePolicy: { policy: "same-site" },
+  })
+);
+app.use((req, res, next) => {
+  res.setHeader(
+    "Permissions-Policy",
+    "geolocation=(), microphone=(), camera=()" 
+  );
+  next();
+});
 app.use(limiter);
 app.use(trackVisitor);
 
@@ -71,7 +95,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/admin', adminRoutes);
 
-// ⚠️ Reminder: This line will not work on Render for permanent file storage
+// Static uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- DATABASE CONNECTION ---
