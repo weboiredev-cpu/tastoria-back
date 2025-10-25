@@ -66,7 +66,8 @@ export const getAllOrders = async (req, res) => {
 export const getOrderByTableId = async (req, res) => {
   try {
     const tableId = req.params.tableId;
-    const order = await Order.findOne({ tableId });
+    const order = await Order.findOne({ tableId }).sort({ orderTime: -1 }); // latest order first
+
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found for this table' });
